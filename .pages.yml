@@ -3,27 +3,18 @@ media:
   input: media
   output: /media
 
+
 content:
   - name: poems
     label: Poems
     type: collection
     path: content/poems
-    format: yaml-frontmatter
-    filename: "{year}-{month}-{day}-{title}.md"
-    view:
-      primary: title
-      fields: [title, date, published]
-      sort: date
-      default:
-        sort: date
-        order: desc
     fields:
       - name: title
         label: Poem Title
         type: string
-        required: true
       - name: date
-        label: Publication Date
+        label: Date
         type: date
       - name: published
         label: Published
@@ -36,22 +27,12 @@ content:
     label: Reflections
     type: collection
     path: content/reflections
-    format: yaml-frontmatter
-    filename: "{year}-{month}-{day}-{title}.md"
-    view:
-      primary: title
-      fields: [title, date, published]
-      sort: date
-      default:
-        sort: date
-        order: desc
     fields:
       - name: title
         label: Reflection Title
         type: string
-        required: true
       - name: date
-        label: Publication Date
+        label: Date
         type: date
       - name: published
         label: Published
@@ -60,3 +41,4 @@ content:
         label: Your Reflection
         type: rich-text
         
+
