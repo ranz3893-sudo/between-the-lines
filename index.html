@@ -1,3 +1,6 @@
+---
+layout: null
+---
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -476,6 +479,10 @@
             margin-top: 25px;
         }
 
+        .poem-preview p + p {
+            margin-top: 16px;
+        }
+
         /* =========================
            ABOUT PAGE
         ========================= */
@@ -752,49 +759,30 @@
             <section class="section featured">
                 <div class="container featured-inner">
 
+                    {% assign featured_poem = site.poems | where: "featured", true | first %}
+                    {% if featured_poem == nil %}
+                      {% assign featured_poem = site.poems | first %}
+                    {% endif %}
                     <div>
-                        <p class="eyebrow featured-label">
-                            Featured poem
-                        </p>
-
-                        <h2 class="featured-title">
-                            The Things We Never Say
-                        </h2>
-
-                        <p class="featured-description">
-                            Some words never leave the heart.
-                            They remain in the pauses, in the silence,
-                            and in the spaces between two people.
-                        </p>
-
-                        <a href="#poem-things-we-never-say"
-                           class="text-link">
-                            Read the poem →
-                        </a>
+                        <p class="eyebrow featured-label">Featured poem</p>
+                        {% if featured_poem %}
+                          <h2 class="featured-title">{{ featured_poem.title | escape }}</h2>
+                          <p class="featured-description">{{ featured_poem.description | default: "A poem from the Between the Lines collection." | escape }}</p>
+                          <a href="#poem-{{ featured_poem.title | slugify }}" class="text-link">Read the poem →</a>
+                        {% else %}
+                          <h2 class="featured-title">A poem will appear here</h2>
+                          <p class="featured-description">Publish a featured poem from your Pages CMS dashboard.</p>
+                          <a href="#poems" class="text-link">Explore the poems →</a>
+                        {% endif %}
                     </div>
-
                     <article class="poem-preview">
-                        <p>
-                            There are words that never find their way
-                            into the light,
-                        </p>
-
-                        <p>
-                            thoughts we carry quietly
-                            into the middle of the night.
-                        </p>
-
-                        <p>
-                            And somewhere in the things we leave unsaid,
-                            a thousand little truths
-                            are waiting to be read.
-                        </p>
-
-                        <p class="poem-credit">
-                            An original poem · Between the Lines
-                        </p>
+                      {% if featured_poem %}
+                        {{ featured_poem.content | markdownify }}
+                        <p class="poem-credit">An original poem · Between the Lines</p>
+                      {% else %}
+                        <p>Your featured poem preview will appear here after you publish your first poem.</p>
+                      {% endif %}
                     </article>
-
                 </div>
             </section>
 
@@ -810,30 +798,21 @@
                 </div>
 
                 <div class="writing-list">
-                    <a class="writing-item" href="#poem-things-we-never-say" data-reading="poem-things-we-never-say">
-                        <span class="writing-date">POEM · 01</span>
+                    {% assign all_writing = site.poems | concat: site.reflections | sort: "date" | reverse %}
+                    {% for item in all_writing limit: 5 %}
+                      {% assign item_kind = item.collection | capitalize %}
+                      {% if item.collection == "poems" %}{% assign item_prefix = "poem" %}{% else %}{% assign item_prefix = "reflection" %}{% endif %}
+                      <a class="writing-item" href="#{{ item_prefix }}-{{ item.title | slugify }}" data-reading="{{ item_prefix }}-{{ item.title | slugify }}">
+                        <span class="writing-date">{{ item_kind | escape }}{% if item.date %} · {{ item.date | date: "%d %b %Y" }}{% endif %}</span>
                         <span>
-                            <span class="writing-title">The Things We Never Say</span>
-                            <span class="writing-description">On silence, closeness, and the words we keep.</span>
+                          <span class="writing-title">{{ item.title | escape }}</span>
+                          <span class="writing-description">{{ item.description | escape }}</span>
                         </span>
                         <span class="writing-arrow" aria-hidden="true">↗</span>
-                    </a>
-                    <a class="writing-item" href="#reflection-small-things" data-reading="reflection-small-things">
-                        <span class="writing-date">REFLECTION · 02</span>
-                        <span>
-                            <span class="writing-title">The Quiet Things</span>
-                            <span class="writing-description">A reflection on finding meaning in ordinary days.</span>
-                        </span>
-                        <span class="writing-arrow" aria-hidden="true">↗</span>
-                    </a>
-                    <a class="writing-item" href="#poem-after-rain" data-reading="poem-after-rain">
-                        <span class="writing-date">POEM · 03</span>
-                        <span>
-                            <span class="writing-title">After the Rain</span>
-                            <span class="writing-description">On beginnings, patience, and starting again.</span>
-                        </span>
-                        <span class="writing-arrow" aria-hidden="true">↗</span>
-                    </a>
+                      </a>
+                    {% else %}
+                      <p class="section-intro">Your latest poems and reflections will appear here after you publish them.</p>
+                    {% endfor %}
                 </div>
             </section>
         </section>
@@ -846,16 +825,16 @@
                 <p>Small pieces of feeling, gathered into words. Read slowly; stay as long as you like.</p>
             </div>
             <div class="collection container">
-                <article class="collection-card">
-                    <p class="category">Poem · 01</p>
-                    <h2><a href="#poem-things-we-never-say" data-reading="poem-things-we-never-say">The Things We Never Say →</a></h2>
-                    <p>Some words never leave the heart. They live in pauses, in silence, and in the spaces between two people.</p>
-                </article>
-                <article class="collection-card">
-                    <p class="category">Poem · 02</p>
-                    <h2><a href="#poem-after-rain" data-reading="poem-after-rain">After the Rain →</a></h2>
-                    <p>A poem about letting the storm pass and finding the courage to begin again.</p>
-                </article>
+                {% assign poems_sorted = site.poems | sort: "date" | reverse %}
+                {% for item in poems_sorted %}
+                  <article class="collection-card">
+                    <p class="category">Poem{% if item.date %} · {{ item.date | date: "%d %b %Y" }}{% endif %}</p>
+                    <h2><a href="#poem-{{ item.title | slugify }}" data-reading="poem-{{ item.title | slugify }}">{{ item.title | escape }} →</a></h2>
+                    <p>{{ item.description | escape }}</p>
+                  </article>
+                {% else %}
+                  <p class="section-intro">No poems published yet. Check back soon.</p>
+                {% endfor %}
             </div>
         </section>
 
@@ -867,65 +846,37 @@
                 <p>Thoughts on life, time, connection, and the things we understand only slowly.</p>
             </div>
             <div class="collection container">
-                <article class="collection-card">
-                    <p class="category">Reflection · 01</p>
-                    <h2><a href="#reflection-small-things" data-reading="reflection-small-things">The Quiet Things →</a></h2>
-                    <p>Not every meaningful moment announces itself. Some arrive softly and ask only that we notice.</p>
-                </article>
+                {% assign reflections_sorted = site.reflections | sort: "date" | reverse %}
+                {% for item in reflections_sorted %}
+                  <article class="collection-card">
+                    <p class="category">Reflection{% if item.date %} · {{ item.date | date: "%d %b %Y" }}{% endif %}</p>
+                    <h2><a href="#reflection-{{ item.title | slugify }}" data-reading="reflection-{{ item.title | slugify }}">{{ item.title | escape }} →</a></h2>
+                    <p>{{ item.description | escape }}</p>
+                  </article>
+                {% else %}
+                  <p class="section-intro">No reflections published yet. Check back soon.</p>
+                {% endfor %}
             </div>
         </section>
 
         <!-- INDIVIDUAL READING VIEW -->
         <section id="reading" class="page">
-            <article class="reading-view container" id="poem-things-we-never-say">
-                <a href="#poems" class="reading-back">← Back to writing</a>
-                <p class="eyebrow">Poem · Between the Lines</p>
-                <h1>The Things We Never Say</h1>
-                <div class="reading-content">
-There are words that never find their way
-into the light,
-
-thoughts we carry quietly
-into the middle of the night.
-
-There are truths behind a passing glance,
-and questions hidden in goodbye;
-the sentences we almost speak
-then leave beneath a quiet sky.
-
-And somewhere in the things we leave unsaid,
-a thousand little truths
-are waiting to be read.
-                </div>
-            </article>
-            <article class="reading-view container" id="reflection-small-things">
-                <a href="#reflections" class="reading-back">← Back to reflections</a>
-                <p class="eyebrow">Reflection · Between the Lines</p>
-                <h1>The Quiet Things</h1>
-                <div class="reading-content">
-We often wait for life to become extraordinary before we allow ourselves to feel grateful. But much of living happens in the ordinary: a familiar voice, a little time to breathe, a meal shared without hurry, a moment of quiet after a difficult day.
-
-Perhaps peace is not always something we find. Sometimes it is something we learn to notice.
-
-The quiet things are not small because they are easy to miss. They are precious because they are always here, asking us to pay attention.
-                </div>
-            </article>
-            <article class="reading-view container" id="poem-after-rain">
+            {% for item in site.poems %}
+              <article class="reading-view container" id="poem-{{ item.title | slugify }}">
                 <a href="#poems" class="reading-back">← Back to poems</a>
-                <p class="eyebrow">Poem · Between the Lines</p>
-                <h1>After the Rain</h1>
-                <div class="reading-content">
-The clouds move on, the streets grow still,
-the leaves hold drops of silver light;
-the world remembers how to breathe
-after the long and restless night.
-
-Not every ending means we're lost,
-not every pause means we must stay;
-sometimes the heart grows new again
-in the gentle hush after the rain.
-                </div>
-            </article>
+                <p class="eyebrow">Poem · Between the Lines{% if item.date %} · {{ item.date | date: "%d %B %Y" }}{% endif %}</p>
+                <h1>{{ item.title | escape }}</h1>
+                <div class="reading-content">{{ item.content | markdownify }}</div>
+              </article>
+            {% endfor %}
+            {% for item in site.reflections %}
+              <article class="reading-view container" id="reflection-{{ item.title | slugify }}">
+                <a href="#reflections" class="reading-back">← Back to reflections</a>
+                <p class="eyebrow">Reflection · Between the Lines{% if item.date %} · {{ item.date | date: "%d %B %Y" }}{% endif %}</p>
+                <h1>{{ item.title | escape }}</h1>
+                <div class="reading-content">{{ item.content | markdownify }}</div>
+              </article>
+            {% endfor %}
         </section>
 
         <!-- ABOUT PAGE -->

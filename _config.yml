@@ -1,0 +1,15 @@
+title: Between the Lines
+description: A quiet space for original poetry, reflections, and thoughts.
+url: "https://ranz3893-sudo.github.io"
+baseurl: "/between-the-lines"
+markdown: kramdown
+kramdown:
+  hard_wrap: true
+permalink: pretty
+collections:
+  poems:
+    output: true
+    permalink: /poems/:name/
+  reflections:
+    output: true
+    permalink: /reflections/:name/
